@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Standalone Appliance Energy Calculator</title>
+  <style>
+    :root{
+      --green:#5f9f3a;
+      --green-dark:#3f7d2b;
+      --bg:#f4f6f3;
+      --card:#ffffff;
+      --line:#d9e2d2;
+      --text:#1f2937;
+      --muted:#6b7280;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+    .wrap{
+      max-width:900px;
+      margin:0 auto;
+      padding:16px;
+    }
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:16px;
+      box-shadow:0 8px 24px rgba(0,0,0,.05);
+      margin-bottom:16px;
+    }
+    h1{
+      margin:0 0 8px;
+      font-size:28px;
+      line-height:1.15;
+      color:var(--green-dark);
+    }
+    .sub{
+      color:var(--muted);
+      font-size:14px;
+      margin-bottom:14px;
+      line-height:1.4;
+    }
+    .row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      margin-bottom:12px;
+    }
+    .field label{
+      display:block;
+      font-size:13px;
+      font-weight:700;
+      margin-bottom:6px;
+    }
+    .field input,.field select{
+      width:100%;
+      padding:12px;
+      border:1px solid #cfd8c7;
+      border-radius:12px;
+      font-size:16px;
+      background:#fff;
+      color:var(--text);
+      min-height:48px;
+      font-family:Arial, Helvetica, sans-serif;
+      -webkit-appearance:none;
+      appearance:none;
+    }
+    .field select{
+      -webkit-appearance:menulist;
+      appearance:menulist;
+    }
+    .field input:focus,.field select:focus{
+      outline:none;
+      border-color:var(--green);
+      box-shadow:0 0 0 3px rgba(95,159,58,.15);
+    }
+    .readonly{
+      background:#f7faf5 !important;
+      color:#4b5563 !important;
+    }
+    .small{
+      color:var(--muted);
+      font-size:12px;
+      margin-top:4px;
+      line-height:1.35;
+    }
+    .helper{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin:4px 0 14px;
+      padding:12px;
+      background:#f7faf5;
+      border:1px solid #dfe8d8;
+      border-radius:14px;
+    }
+    .helper span{
+      font-size:14px;
+      font-weight:700;
+      color:var(--green-dark);
+    }
+    .button-row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:4px;
+    }
+    button{
+      width:100%;
+      border:0;
+      border-radius:12px;
+      padding:14px 16px;
+      font-size:16px;
+      font-weight:700;
+      cursor:pointer;
+      background:var(--green);
+      color:white;
+      font-family:Arial, Helvetica, sans-serif;
+    }
+    .secondary{
+      background:#eef3ea;
+      color:var(--green-dark);
+    }
+    .stats{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      margin-top:12px;
+    }
+    .stat{
+      background:#f7faf5;
+      border:1px solid #dfe8d8;
+      border-radius:14px;
+      padding:12px;
+    }
+    .stat .label{
+      color:var(--muted);
+      font-size:12px;
+      margin-bottom:4px;
+    }
+    .stat .value{
+      font-size:22px;
+      font-weight:800;
+      color:var(--green-dark);
+      line-height:1.2;
+      word-break:break-word;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:13px;
+      margin-top:8px;
+    }
+    th{
+      background:var(--green);
+      color:white;
+      text-align:left;
+      padding:10px 8px;
+    }
+    td{
+      padding:9px 8px;
+      border-bottom:1px solid #e5eadf;
+      vertical-align:top;
+    }
+    tr:nth-child(even) td{
+      background:#fafcf8;
+    }
+    .right{text-align:right}
+    .note{
+      background:#fff9db;
+      border:1px solid #f6e58d;
+      color:#6b5b00;
+      border-radius:12px;
+      padding:10px 12px;
+      font-size:13px;
+      line-height:1.4;
+      margin-top:10px;
+    }
+    .delete-btn{
+      border:0;
+      background:transparent;
+      color:#b42318;
+      font-size:18px;
+      padding:4px 8px;
+      cursor:pointer;
+      width:auto;
+    }
+    @media (max-width:640px){
+      .row,.stats,.button-row{grid-template-columns:1fr}
+      h1{font-size:24px}
+      .wrap{padding:12px}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Appliance Energy Calculator</h1>
+      <div class="sub">Based on More Power PHP/kWh.</div>
+
+      <div class="helper">
+        <span>Standalone single-file app for Safari, Chrome, Opera, Firefox, Edge, iPhone, iPad, and Android.</span>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="preset">Appliance</label>
+          <select id="preset">
+            <option value="manual">Manual Input</option>
+            <option value="0">LED Bulb (13 W)</option>
+            <option value="1">Electric Fan (80 W)</option>
+            <option value="2">Wifi Router (10 W)</option>
+            <option value="3">Smart TV (170 W)</option>
+            <option value="4">Refrigerator (190 W)</option>
+            <option value="5">Washing Machine (2000 W)</option>
+            <option value="6">Aircon (1200 W)</option>
+            <option value="7">Electric Iron (1000 W)</option>
+          </select>
+          <div class="small">Choose Manual Input or select an appliance to auto-fill the fields.</div>
+        </div>
+        <div class="field">
+          <label for="name">Appliance Name</label>
+          <input id="name" type="text" placeholder="Custom Appliance" autocomplete="off">
+          <div class="small">Type the power in Watts. kW updates automatically.</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="quantity">Quantity</label>
+          <input id="quantity" type="text" inputmode="numeric" value="1">
+        </div>
+        <div class="field">
+          <label for="watts">Power Rating (Watts)</label>
+          <input id="watts" type="text" inputmode="decimal" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type Watts">
+          <div class="small">Examples: 80, 750, 1200, 1500.5</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="hours">Usage Hours per Day</label>
+          <input id="hours" type="text" inputmode="decimal" value="1">
+        </div>
+        <div class="field">
+          <label for="days">Days of Usage per Month</label>
+          <input id="days" type="text" inputmode="numeric" value="30">
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="rate">Rate per kWh (PHP)</label>
+          <input id="rate" type="text" inputmode="decimal" value="11.68">
+        </div>
+        <div class="field">
+          <label for="kw">Power Rating (kW)</label>
+          <input id="kw" class="readonly" type="text" readonly tabindex="-1" placeholder="Auto calculated from Watts">
+        </div>
+      </div>
+
+      <div class="button-row">
+        <button id="addBtn" type="button">Calculate and Add</button>
+        <button class="secondary" id="clearBtn" type="button">Clear Input</button>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="label">Daily Energy</div>
+          <div class="value" id="dailyKwh">0.000 kWh</div>
+        </div>
+        <div class="stat">
+          <div class="label">Daily Cost</div>
+          <div class="value" id="dailyCost">PHP 0.00</div>
+        </div>
+        <div class="stat">
+          <div class="label">Monthly Energy</div>
+          <div class="value" id="monthlyKwh">0.000 kWh</div>
+        </div>
+        <div class="stat">
+          <div class="label">Monthly Cost</div>
+          <div class="value" id="monthlyCost">PHP 0.00</div>
+        </div>
+      </div>
+
+      <div class="note">Formula: Daily kWh = Quantity × (Watts ÷ 1000) × Hours per Day. Monthly kWh = Daily kWh × Days per Month.</div>
+    </div>
+
+    <div class="card">
+      <h1 style="font-size:22px;margin-bottom:6px;">Saved Appliance List</h1>
+      <div class="sub">Saved on this device using your browser.</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Appliance</th>
+            <th class="right">Qty</th>
+            <th class="right">W</th>
+            <th class="right">Hours</th>
+            <th class="right">Daily kWh</th>
+            <th class="right">Monthly Cost</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="resultBody"></tbody>
+      </table>
+      <div class="stats" style="margin-top:14px;">
+        <div class="stat">
+          <div class="label">Total Daily Energy</div>
+          <div class="value" id="totalDailyKwh">0.000 kWh</div>
+        </div>
+        <div class="stat">
+          <div class="label">Total Monthly Cost</div>
+          <div class="value" id="totalMonthlyCost">PHP 0.00</div>
+        </div>
+      </div>
+      <div class="button-row" style="grid-template-columns:1fr;">
+        <button class="secondary" id="clearTableBtn" type="button">Clear Saved List</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var STORAGE_KEY = 'simpleSafariEnergyList_cross_browser';
+      var presets = [
+        {name:'LED Bulb', quantity:6, watts:13, hours:8, days:30},
+        {name:'Electric Fan', quantity:2, watts:80, hours:6, days:30},
+        {name:'Wifi Router', quantity:1, watts:10, hours:24, days:30},
+        {name:'Smart TV', quantity:1, watts:170, hours:6, days:30},
+        {name:'Refrigerator', quantity:1, watts:190, hours:24, days:30},
+        {name:'Washing Machine', quantity:1, watts:2000, hours:0.357142857, days:30},
+        {name:'Aircon', quantity:1, watts:1200, hours:8, days:30},
+        {name:'Electric Iron', quantity:1, watts:1000, hours:0.666666667, days:30}
+      ];
+
+      var presetEl = document.getElementById('preset');
+      var nameEl = document.getElementById('name');
+      var quantityEl = document.getElementById('quantity');
+      var wattsEl = document.getElementById('watts');
+      var hoursEl = document.getElementById('hours');
+      var daysEl = document.getElementById('days');
+      var rateEl = document.getElementById('rate');
+      var kwEl = document.getElementById('kw');
+
+      var dailyKwhEl = document.getElementById('dailyKwh');
+      var dailyCostEl = document.getElementById('dailyCost');
+      var monthlyKwhEl = document.getElementById('monthlyKwh');
+      var monthlyCostEl = document.getElementById('monthlyCost');
+
+      var resultBody = document.getElementById('resultBody');
+      var totalDailyKwhEl = document.getElementById('totalDailyKwh');
+      var totalMonthlyCostEl = document.getElementById('totalMonthlyCost');
+
+      var addBtn = document.getElementById('addBtn');
+      var clearBtn = document.getElementById('clearBtn');
+      var clearTableBtn = document.getElementById('clearTableBtn');
+
+      var saved = [];
+
+      function fmt(num, digits){
+        var n = Number(num);
+        if (!isFinite(n)) { n = 0; }
+        return n.toLocaleString(undefined, {
+          minimumFractionDigits: digits,
+          maximumFractionDigits: digits
+        });
+      }
+
+      function parseNum(value){
+        if (value === undefined || value === null) return 0;
+        var raw = String(value);
+        raw = raw.replace(/,/g, '.');
+        raw = raw.replace(/[^0-9.\-]/g, '');
+        if (raw === '' || raw === '-' || raw === '.') return 0;
+        if (raw.indexOf('.') !== -1) {
+          var firstDot = raw.indexOf('.');
+          raw = raw.slice(0, firstDot + 1) + raw.slice(firstDot + 1).replace(/\./g, '');
+        }
+        var val = parseFloat(raw);
+        if (!isFinite(val) || isNaN(val) || val < 0) return 0;
+        return val;
+      }
+
+      function escapeHtml(str){
+        return String(str).replace(/[&<>"]/g, function (m) {
+          return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m];
+        });
+      }
+
+      function getCurrentValues(){
+        var watts = parseNum(wattsEl.value);
+        var kw = watts / 1000;
+        var quantity = parseNum(quantityEl.value) || 1;
+        var hours = parseNum(hoursEl.value);
+        var days = parseNum(daysEl.value);
+        var rate = parseNum(rateEl.value);
+
+        var dailyKwh = quantity * kw * hours;
+        var dailyCost = dailyKwh * rate;
+        var monthlyKwh = dailyKwh * days;
+        var monthlyCost = monthlyKwh * rate;
+
+        return {
+          name: (nameEl.value || '').replace(/^\s+|\s+$/g, '') || 'Custom Appliance',
+          quantity: quantity,
+          watts: watts,
+          kw: kw,
+          hours: hours,
+          days: days,
+          rate: rate,
+          dailyKwh: dailyKwh,
+          dailyCost: dailyCost,
+          monthlyKwh: monthlyKwh,
+          monthlyCost: monthlyCost
+        };
+      }
+
+      function updateSummary(){
+        var values = getCurrentValues();
+
+        kwEl.value = wattsEl.value.replace(/^\s+|\s+$/g, '') === '' ? '' : values.kw.toFixed(3);
+        dailyKwhEl.innerHTML = fmt(values.dailyKwh, 3) + ' kWh';
+        dailyCostEl.innerHTML = 'PHP ' + fmt(values.dailyCost, 2);
+        monthlyKwhEl.innerHTML = fmt(values.monthlyKwh, 3) + ' kWh';
+        monthlyCostEl.innerHTML = 'PHP ' + fmt(values.monthlyCost, 2);
+      }
+
+      function saveList(){
+        try{
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+        }catch(e){}
+      }
+
+      function renderTable(){
+        var i, row, tr, btns;
+        var totalDaily = 0;
+        var totalMonthly = 0;
+        resultBody.innerHTML = '';
+
+        for (i = 0; i < saved.length; i++) {
+          row = saved[i];
+          totalDaily += Number(row.dailyKwh) || 0;
+          totalMonthly += Number(row.monthlyCost) || 0;
+
+          tr = document.createElement('tr');
+          tr.innerHTML =
+            '<td>' + escapeHtml(row.name) + '</td>' +
+            '<td class="right">' + fmt(row.quantity, 0) + '</td>' +
+            '<td class="right">' + fmt(row.watts, 0) + '</td>' +
+            '<td class="right">' + fmt(row.hours, 2) + '</td>' +
+            '<td class="right">' + fmt(row.dailyKwh, 3) + '</td>' +
+            '<td class="right">PHP ' + fmt(row.monthlyCost, 2) + '</td>' +
+            '<td class="right"><button class="delete-btn" type="button" data-index="' + i + '">🗑️</button></td>';
+          resultBody.appendChild(tr);
+        }
+
+        totalDailyKwhEl.innerHTML = fmt(totalDaily, 3) + ' kWh';
+        totalMonthlyCostEl.innerHTML = 'PHP ' + fmt(totalMonthly, 2);
+
+        btns = resultBody.querySelectorAll('.delete-btn');
+        for (i = 0; i < btns.length; i++) {
+          btns[i].onclick = function () {
+            var idx = parseInt(this.getAttribute('data-index'), 10);
+            if (!isNaN(idx)) {
+              saved.splice(idx, 1);
+              saveList();
+              renderTable();
+            }
+          };
+        }
+      }
+
+      function loadList(){
+        try{
+          var raw = localStorage.getItem(STORAGE_KEY);
+          saved = raw ? JSON.parse(raw) : [];
+          if (!saved || !saved.length || Object.prototype.toString.call(saved) !== '[object Array]') {
+            saved = [];
+          }
+        }catch(e){
+          saved = [];
+        }
+        renderTable();
+      }
+
+      function loadPreset(){
+        var selected = presetEl.value;
+        var item;
+
+        if (selected === 'manual') {
+          clearInput();
+          return;
+        }
+
+        item = presets[Number(selected)];
+        if (!item) return;
+
+        nameEl.value = item.name;
+        quantityEl.value = String(item.quantity);
+        wattsEl.value = String(item.watts);
+        hoursEl.value = String(item.hours);
+        daysEl.value = String(item.days);
+        updateSummary();
+      }
+
+      function clearInput(){
+        presetEl.value = 'manual';
+        nameEl.value = '';
+        quantityEl.value = '1';
+        wattsEl.value = '';
+        hoursEl.value = '1';
+        daysEl.value = '30';
+        updateSummary();
+      }
+
+      function addCurrent(){
+        var values = getCurrentValues();
+        if (values.watts <= 0) {
+          alert('Please enter a Power Rating in Watts before adding.');
+          return;
+        }
+        saved.push({
+          name: values.name,
+          quantity: values.quantity,
+          watts: values.watts,
+          hours: values.hours,
+          days: values.days,
+          rate: values.rate,
+          dailyKwh: values.dailyKwh,
+          dailyCost: values.dailyCost,
+          monthlyKwh: values.monthlyKwh,
+          monthlyCost: values.monthlyCost
+        });
+        saveList();
+        renderTable();
+      }
+
+      function bindInput(el){
+        if (!el) return;
+        el.oninput = updateSummary;
+        el.onchange = updateSummary;
+        el.onkeyup = updateSummary;
+      }
+
+      presetEl.onchange = loadPreset;
+      bindInput(quantityEl);
+      bindInput(wattsEl);
+      bindInput(hoursEl);
+      bindInput(daysEl);
+      bindInput(rateEl);
+
+      addBtn.onclick = addCurrent;
+      clearBtn.onclick = clearInput;
+      clearTableBtn.onclick = function () {
+        saved = [];
+        saveList();
+        renderTable();
+      };
+
+      updateSummary();
+      loadList();
+    })();
+  </script>
+</body>
+</html>
