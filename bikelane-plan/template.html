@@ -1,0 +1,437 @@
+<title>Green Ring Bike Junction</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  --paper:#eef1ee; --surface:#ffffff; --ink:#17201c; --muted:#56635c; --rule:#d3dad5;
+  --green:#1f8a4c; --green-ink:#146a39; --green-soft:#e2f0e6; --amber:#a86400; --amber-soft:#fbefd9;
+  --sheet:#dedbd3; --code:#e7ebe8;
+  --display:"Barlow Condensed","Arial Narrow",sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --paper:#101513; --surface:#18201c; --ink:#e2e9e4; --muted:#98a69e; --rule:#2b3530;
+    --green:#4cc27a; --green-ink:#7fd9a1; --green-soft:#15301f; --amber:#e5a43d; --amber-soft:#35270f;
+    --sheet:#2a2e2c; --code:#222a26;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --paper:#101513; --surface:#18201c; --ink:#e2e9e4; --muted:#98a69e; --rule:#2b3530;
+  --green:#4cc27a; --green-ink:#7fd9a1; --green-soft:#15301f; --amber:#e5a43d; --amber-soft:#35270f;
+  --sheet:#2a2e2c; --code:#222a26;
+}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font:15px/1.6 var(--body);margin:0}
+.wrap{max-width:1140px;margin:0 auto;padding-inline:20px;padding-block:28px 64px}
+h1,h2,h3{font-family:var(--display);font-weight:700;line-height:1.08;text-wrap:balance;margin:0}
+h1{font-size:clamp(2.3rem,5.5vw,3.6rem);letter-spacing:.01em}
+h2{font-size:1.9rem}
+h3{font-size:1.25rem;letter-spacing:.02em}
+p{margin:0;max-width:68ch}
+.muted{color:var(--muted)}
+.sheet-tag{font-family:var(--mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--green-ink)}
+
+/* title block */
+.titleblock{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:end;border-bottom:3px solid var(--ink);padding-bottom:18px}
+.titleblock .lede{margin-top:10px;font-size:1.05rem;color:var(--muted)}
+.tb-meta{display:grid;grid-template-columns:auto auto;gap:2px 14px;font-family:var(--mono);font-size:.78rem;border:1px solid var(--rule);background:var(--surface);padding:10px 14px}
+.tb-meta dt{color:var(--muted)} .tb-meta dd{margin:0}
+@media (max-width:720px){.titleblock{grid-template-columns:1fr}}
+
+section{margin-top:56px;display:grid;gap:18px}
+.sec-head{display:grid;gap:6px}
+
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);margin-top:28px}
+.summary div{background:var(--surface);padding:16px 18px;display:grid;gap:4px;align-content:start}
+.summary b{font-family:var(--display);font-size:1.3rem;font-weight:700;color:var(--green-ink)}
+.summary span{font-size:.9rem;color:var(--muted)}
+
+.note{border-left:4px solid var(--amber);background:var(--amber-soft);padding:12px 16px;max-width:none}
+.note p{max-width:80ch}
+
+.photos{display:grid;grid-template-columns:1fr 1.35fr;gap:18px}
+@media (max-width:820px){.photos{grid-template-columns:1fr}}
+figure{margin:0;display:grid;gap:8px}
+figure img{display:block;width:100%;height:auto;border:1px solid var(--rule)}
+figcaption{font-size:.85rem;color:var(--muted)}
+
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px}
+ul.clean{margin:0;padding-left:1.1em;display:grid;gap:6px}
+ul.clean li{max-width:70ch}
+
+/* overlay */
+.ov-fig{position:relative;border:1px solid var(--rule);overflow:hidden;background:#000}
+.ov-fig img{border:0}
+.ov{position:absolute;inset:0;width:100%;height:100%;transition:opacity .35s}
+.ov-fig.existing .ov,.ov-fig.existing .ov-n{opacity:0}
+.ov-n{position:absolute;transform:translate(-50%,-50%);width:26px;height:26px;border-radius:50%;background:#fff;color:#17201c;border:2px solid #17201c;font:700 14px/22px var(--display);text-align:center;transition:opacity .35s}
+@media (max-width:600px){.ov-n{width:20px;height:20px;font-size:11px;line-height:16px}}
+@media (prefers-reduced-motion:reduce){.ov,.ov-n{transition:none}}
+.toggle{display:inline-flex;border:1px solid var(--ink);width:max-content}
+.toggle button{font:600 .95rem var(--display);letter-spacing:.06em;text-transform:uppercase;padding:7px 16px;background:var(--surface);color:var(--ink);border:0;cursor:pointer}
+.toggle button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.toggle button:focus-visible{outline:3px solid var(--green);outline-offset:2px}
+
+/* plan */
+.plan-grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(260px,1fr);gap:22px;align-items:start}
+@media (max-width:900px){.plan-grid{grid-template-columns:1fr}}
+.drawing{background:var(--sheet);border:1px solid var(--rule);padding:8px}
+.plan-svg{display:block;width:100%;height:auto}
+.scroll{overflow-x:auto}
+.scroll .plan-svg.detail{min-width:560px}
+ol.key{margin:0;padding:0;list-style:none;display:grid;gap:9px;counter-reset:k}
+ol.key li{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start;font-size:.92rem}
+ol.key li::before{counter-increment:k;content:counter(k);width:24px;height:24px;border-radius:50%;border:2px solid var(--ink);background:var(--surface);font:700 13px/20px var(--display);text-align:center}
+.swatches{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:.82rem;color:var(--muted)}
+.swatches span{display:inline-flex;align-items:center;gap:6px}
+.swatches i{width:16px;height:12px;display:inline-block;border:1px solid rgba(0,0,0,.25)}
+
+/* sections */
+.secs{display:grid;gap:26px}
+.sec-svg{display:block;width:100%;height:auto;color:var(--ink);min-width:640px}
+.sec-card{display:grid;gap:8px}
+
+/* tables */
+table{border-collapse:collapse;width:100%;font-size:.9rem;background:var(--surface)}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-family:var(--display);font-size:.95rem;letter-spacing:.05em;text-transform:uppercase;background:var(--code)}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pill{display:inline-block;font:600 .78rem var(--display);letter-spacing:.06em;text-transform:uppercase;padding:1px 8px;border-radius:3px}
+.go{background:var(--green-soft);color:var(--green-ink)}
+.stop{background:#f3dcd8;color:#8a2a1c}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .stop{background:#3a1c17;color:#f0a497}}
+:root[data-theme="dark"] .stop{background:#3a1c17;color:#f0a497}
+.yield{background:var(--amber-soft);color:var(--amber)}
+
+.turns{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.turns div{background:var(--surface);border:1px solid var(--rule);padding:14px 16px;display:grid;gap:6px;align-content:start}
+.turns h3{font-size:1.1rem}
+
+ol.stages{margin:0;padding:0;list-style:none;display:grid;gap:0;counter-reset:s}
+ol.stages li{display:grid;grid-template-columns:44px 1fr;gap:14px;padding:14px 0;border-top:1px solid var(--rule)}
+ol.stages li::before{counter-increment:s;content:counter(s);font:700 1.9rem/1 var(--display);color:var(--green)}
+ol.stages b{font-family:var(--display);font-size:1.15rem;letter-spacing:.02em}
+code{font-family:var(--mono);font-size:.85em;background:var(--code);padding:1px 5px}
+footer{margin-top:56px;padding-top:16px;border-top:1px solid var(--rule);font-size:.82rem;color:var(--muted)}
+</style>
+
+<div class="wrap">
+
+<header class="titleblock">
+  <div>
+    <div class="sheet-tag">Concept design · protected intersection retrofit</div>
+    <h1>Green Ring Bike Junction</h1>
+    <p class="lede">The protected bike intersection from the reference render (photo 1), laid out on your signalised six-lane junction (photo 2). The design is mirrored for right-hand traffic and uses the wide east median park so that no northbound traffic lane is lost.</p>
+  </div>
+  <dl class="tb-meta">
+    <dt>Drawing</dt><dd>Concept layout, rev A</dd>
+    <dt>Traffic</dt><dd>Drive on right (PH)</dd>
+    <dt>Units</dt><dd>metres</dd>
+    <dt>Scale</dt><dd>see scale bar</dd>
+    <dt>Date</dt><dd>2026-09-27</dd>
+    <dt>Status</dt><dd>For discussion</dd>
+  </dl>
+</header>
+
+<div class="summary">
+  <div><b>4 corner islands</b><span>Turning cars and jeepneys meet riders 5 m back from the traffic lane, after they have finished turning.</span></div>
+  <div><b>Green ring</b><span>One-way bike crossings run anticlockwise around the junction, inside the pedestrian zebras.</span></div>
+  <div><b>0 NB lanes removed</b><span>Northbound riders use a new 2.5 m cycle track inside the existing median park.</span></div>
+  <div><b>SB: 3 lanes kept</b><span>The wide southbound lanes are narrowed to 3.25 m. That frees 4.0 m for a 2.5 m bike lane and a 1.5 m kerb.</span></div>
+  <div><b>Floating jeepney stop</b><span>Passengers board from a platform, and the bike lane runs behind it.</span></div>
+</div>
+
+<!-- 01 -->
+<section id="photos">
+  <div class="sec-head">
+    <div class="sheet-tag">Sheet 01 · Reading the two photos</div>
+    <h2>What we take from the reference, and what has to change</h2>
+  </div>
+  <div class="photos">
+    <figure>
+      <img src="reference.jpg" alt="Reference render: green bike lanes loop around a four-way intersection with kerbed corner islands" width="864" height="528">
+      <figcaption>Photo 1, reference. A drive-on-left design (Australia), so every turning movement has to be mirrored.</figcaption>
+    </figure>
+    <figure>
+      <img src="existing.jpg" alt="Existing drone view: divided six-lane road crossing a two-way street, with a service road and landscaped median on the east side" width="1600" height="900">
+      <figcaption>Photo 2, existing. Divided main road (N–S), undivided cross street (E–W), east service road behind a wide median park and plaza.</figcaption>
+    </figure>
+  </div>
+  <div class="cols">
+    <div>
+      <h3>Kept from photo 1</h3>
+      <ul class="clean">
+        <li>A continuous green band around the junction, with bike crossings set back from the car box.</li>
+        <li>Raised corner islands that force turning vehicles to slow down and square up before the bike crossing.</li>
+        <li>Pedestrian zebras placed just outside the bike crossings.</li>
+        <li>Median refuges carried through the crossings.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Changed for this site</h3>
+      <ul class="clean">
+        <li><b>Mirrored.</b> In the Philippines riders keep right, so the ring runs anticlockwise. The islands protect the <em>right</em> turn (the tight, fast one), and left turns are made in two stages.</li>
+        <li><b>East side.</b> The NB cycle track goes into the existing median park instead of the carriageway.</li>
+        <li><b>Jeepneys.</b> Far-side stops get a boarding platform so jeepneys never stop in the bike lane.</li>
+        <li><b>Motorcycles.</b> Raised separators replace the reference's painted buffers, because paint alone will not keep motorcycles out.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 02 -->
+<section id="concept">
+  <div class="sec-head">
+    <div class="sheet-tag">Sheet 02 · Concept on the existing photo</div>
+    <h2>The proposal drawn over your intersection</h2>
+    <p class="muted">A hand-placed sketch over the drone photo, not to scale. Use the plan on Sheet 03 for dimensions. Numbers match the key on Sheet 03.</p>
+  </div>
+  <div class="toggle" role="group" aria-label="Photo view">
+    <button type="button" id="btn-prop" aria-pressed="true">Proposed</button>
+    <button type="button" id="btn-exist" aria-pressed="false">Existing</button>
+  </div>
+  <figure>
+    <div class="ov-fig" id="ovfig">
+      <img src="existing.jpg" alt="Existing intersection with proposed green bike ring, corner islands and new crossings overlaid" width="1600" height="900">
+      {{OVERLAY}}
+      {{OVMARKS}}
+    </div>
+    <figcaption>Green: bike lanes and crossings. Light grey: new raised islands and refuges. White stripes: relocated or new zebras.</figcaption>
+  </figure>
+</section>
+
+<!-- 03 -->
+<section id="plan">
+  <div class="sec-head">
+    <div class="sheet-tag">Sheet 03 · Layout plan</div>
+    <h2>Layout plan, north up</h2>
+    <p class="muted">Drawn to scale from widths estimated off the photo. Confirm every dimension with a topographic survey before detailed design.</p>
+  </div>
+  <div class="plan-grid">
+    <div class="drawing">{{PLAN}}</div>
+    <div style="display:grid;gap:16px">
+      <ol class="key">
+        <li><span><b>Corner protection island.</b> 5 × 5 m, 150 mm kerb, R4.2 facing traffic, with a hatched 75 mm mountable apron so jeepneys and trucks can still turn.</span></li>
+        <li><span><b>Green bike crossing.</b> Set back 5 m from the traffic lane, with elephant's-feet edge markings.</span></li>
+        <li><span><b>SB protected bike lane.</b> 2.5 m, behind a 1.5 m raised separator. It bends out behind the corner island.</span></li>
+        <li><span><b>NB cycle track in the median park.</b> 2.5 m, 5 m from the NB kerb, next to the existing park path.</span></li>
+        <li><span><b>Cross-street bike lanes.</b> 1.8 m, with a 0.5 m rubber kerb and flexible posts.</span></li>
+        <li><span><b>Pedestrian crossings.</b> 4 m wide, 1 m outside the bike ring.</span></li>
+        <li><span><b>Median refuge.</b> 2.5 m wide, extended through both crossings with at-grade cut-throughs.</span></li>
+        <li><span><b>Floating jeepney stop (SB, far side).</b> 3 × 15 m platform with the bike lane behind it.</span></li>
+        <li><span><b>NB far-side jeepney stop.</b> At the park kerb, with a zebra across the cycle track.</span></li>
+        <li><span><b>Two-stage left-turn waiting area.</b> At every ring corner.</span></li>
+        <li><span><b>Signal poles.</b> On the islands, carrying vehicle heads plus bicycle-symbol heads.</span></li>
+        <li><span><b>Service-road crossing.</b> Green, set back from the cross street and on the same controller.</span></li>
+        <li><span><b>Shark teeth.</b> Riders give way to pedestrians before every zebra.</span></li>
+      </ol>
+      <div class="swatches">
+        <span><i style="background:#2c9a52"></i>Bike lane / crossing</span>
+        <span><i style="background:#b3aea3"></i>Raised island / separator</span>
+        <span><i style="background:#50555b"></i>Carriageway</span>
+        <span><i style="background:#9fbf83"></i>Planting</span>
+        <span><i style="background:#d8d2c2"></i>Park path</span>
+        <span><i style="background:#c8452f"></i>Jeepney</span>
+        <span><i style="background:#1d2522;border-radius:50%"></i>Signal pole</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 04 -->
+<section id="detail">
+  <div class="sec-head">
+    <div class="sheet-tag">Sheet 04 · Corner detail</div>
+    <h2>South-west corner and jeepney platform</h2>
+    <p class="muted">The same drawing enlarged, with dimensions in metres. The other three corners mirror this one. On the east side the island sits on the park nose, so no bend-out is needed.</p>
+  </div>
+  <div class="drawing scroll">{{DETAIL}}</div>
+</section>
+
+<!-- 05 -->
+<section id="sections">
+  <div class="sec-head">
+    <div class="sheet-tag">Sheet 05 · Typical cross-sections</div>
+    <h2>Typical cross-sections</h2>
+    <p class="muted">Widths in metres, looking north (A, C) and looking west (B). Raised blocks are kerbed at 150 mm.</p>
+  </div>
+  <div class="secs">
+    <div class="sec-card"><h3>A–A · Main road, north of the junction</h3><div class="scroll">{{SECA}}</div></div>
+    <div class="sec-card"><h3>B–B · Cross street, west arm</h3><div class="scroll">{{SECB}}</div></div>
+    <div class="sec-card"><h3>C–C · Main road at the SB floating jeepney stop (west half)</h3><div class="scroll">{{SECC}}</div></div>
+  </div>
+  <div class="note"><p><b>Where the SB space comes from.</b> In the photo the southbound carriageway looks about 13.5–14.5 m wide. That is room for three generous lanes plus leftover width that motorcycles now weave through. Three 3.25 m lanes, a 1.5 m separator and a 2.5 m bike lane total 13.75 m. If the survey shows less than 13.25 m, cut the separator to 1.0 m before narrowing any lane below 3.0 m.</p></div>
+</section>
+
+<!-- 06 -->
+<section id="dims">
+  <div class="sec-head">
+    <div class="sheet-tag">Sheet 06 · Design dimensions</div>
+    <h2>Design dimensions</h2>
+  </div>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Element</th><th>This plan</th><th>Absolute min.</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Main-road bike lane (one-way)</td><td class="num">2.50 m</td><td class="num">2.00 m</td><td>Riders can overtake, and cargo bikes and pedicab-width trikes fit.</td></tr>
+      <tr><td>Main-road separator (raised)</td><td class="num">1.50 m</td><td class="num">0.60 m</td><td>Space for signs, poles and drainage gaps. A car door cannot reach the lane.</td></tr>
+      <tr><td>Cross-street bike lane</td><td class="num">1.80 m</td><td class="num">1.50 m</td><td>Lower speed street with a single traffic lane each way.</td></tr>
+      <tr><td>Cross-street separator</td><td class="num">0.50 m</td><td class="num">0.40 m</td><td>Rubber kerb with flexible posts every 3 m.</td></tr>
+      <tr><td>Set-back, traffic lane to bike crossing</td><td class="num">5.00 m</td><td class="num">4.50 m</td><td>One car length. A turning driver waits clear of through traffic and faces riders head-on.</td></tr>
+      <tr><td>Corner island</td><td class="num">5 × 5 m</td><td class="num">4 × 4 m</td><td>150 mm kerb, core R4.2, mountable apron to R1.8. Check with jeepney and truck swept paths.</td></tr>
+      <tr><td>Bike crossing width</td><td class="num">2.5 / 2.0 m</td><td class="num">2.0 / 1.8 m</td><td>Main-road side / cross-street side.</td></tr>
+      <tr><td>Pedestrian zebra width</td><td class="num">4.00 m</td><td class="num">3.00 m</td><td>Busy mall frontage. Keep the existing wide crossings.</td></tr>
+      <tr><td>Gap between bike crossing and zebra</td><td class="num">1.00 m</td><td class="num">0.60 m</td><td>Keeps waiting pedestrians out of the bike path.</td></tr>
+      <tr><td>SB traffic lanes</td><td class="num">3 × 3.25 m</td><td class="num">3.00 m</td><td>NB lanes stay as they are.</td></tr>
+      <tr><td>Cross-street traffic lane</td><td class="num">3.70 m</td><td class="num">3.35 m</td><td>Jeepneys and delivery trucks.</td></tr>
+      <tr><td>Clear walkway behind the bike lane</td><td class="num">3.50 m</td><td class="num">2.00 m</td><td>Two wheelchairs can pass.</td></tr>
+      <tr><td>Jeepney boarding platform</td><td class="num">3.0 × 15 m</td><td class="num">2.0 × 10 m</td><td>Fits two jeepneys at once, with a shelter.</td></tr>
+      <tr><td>Median refuge</td><td class="num">2.50 m</td><td class="num">2.00 m</td><td>Extended through both crossings.</td></tr>
+      <tr><td>Bike lane crossfall / kerb ramps</td><td class="num">2 % / flush</td><td class="num">—</td><td>0 mm lip at every crossing, for both wheels and wheelchairs.</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- 07 -->
+<section id="signals">
+  <div class="sec-head">
+    <div class="sheet-tag">Sheet 07 · Signal phasing</div>
+    <h2>Signal phasing</h2>
+    <p class="muted">Bike and pedestrian crossings run with the parallel traffic. Every crossing gets a 5 s leading interval, and right turn on red is banned at all four approaches.</p>
+  </div>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Phase</th><th>Vehicles</th><th>Bike crossings</th><th>Pedestrians</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td class="num">P1 · 5 s</td><td><span class="pill stop">Hold</span> main road</td><td><span class="pill go">Go</span> west + east arms (SB, NB riders)</td><td><span class="pill go">Go</span> west + east arms</td><td>Leading interval: riders are in the crossing before cars start to turn.</td></tr>
+      <tr><td class="num">P2</td><td><span class="pill go">Go</span> main road through<br><span class="pill yield">Yield</span> right turns</td><td><span class="pill go">Go</span> west + east arms</td><td><span class="pill go">Go</span> west + east arms</td><td>Sign: “Turning vehicles yield to bicycles and pedestrians”.</td></tr>
+      <tr><td class="num">P3</td><td><span class="pill go">Go</span> protected lefts NB→W, SB→E</td><td><span class="pill stop">Stop</span> all</td><td><span class="pill stop">Stop</span> all</td><td>Left turns cross the bike ring, so they must be protected-only.</td></tr>
+      <tr><td class="num">P4 · +5 s lead</td><td><span class="pill go">Go</span> cross street eastbound, all movements<br><span class="pill yield">Yield</span> EB right</td><td><span class="pill go">Go</span> south crossing (EB riders)</td><td><span class="pill go">Go</span> south crossing</td><td>Split phase, because the cross street has one lane and no left pocket.</td></tr>
+      <tr><td class="num">P5 · +5 s lead</td><td><span class="pill go">Go</span> cross street westbound, all movements<br><span class="pill yield">Yield</span> WB right</td><td><span class="pill go">Go</span> north crossing (WB riders)</td><td><span class="pill go">Go</span> north crossing</td><td>The service-road approach runs on the same controller.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="turns">
+    <div><h3>Going straight</h3><p>Ride through on your own green. You never share a traffic lane.</p></div>
+    <div><h3>Turning right</h3><p>Stay on the ring and turn right at the corner. No signal is needed; give way to pedestrians.</p></div>
+    <div><h3>Turning left (two stages)</h3><p>Ride straight across to the far corner and wait in the queue area. Then cross on the next green. Example: NB rider going west crosses the east arm (P2), then crosses the main road on the north crossing (P5).</p></div>
+  </div>
+  <p class="muted">Keep the current cycle length and re-optimise it once new turning counts are in. The two added leading intervals cost about 10 s of vehicle green per cycle.</p>
+</section>
+
+<!-- 08 -->
+<section id="schedule">
+  <div class="sec-head">
+    <div class="sheet-tag">Sheet 08 · Markings, signs and materials</div>
+    <h2>Markings, signs and materials</h2>
+  </div>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Item</th><th>Specification</th><th>Where</th><th class="num">Qty (this layout)</th></tr></thead>
+    <tbody>
+      <tr><td>Green surfacing</td><td>Anti-skid coloured surfacing (MMA cold-plastic or thermoplastic with calcined bauxite aggregate)</td><td>Full ring and all conflict zones, driveways and service-road crossing. Plain asphalt with green edge lines elsewhere is acceptable.</td><td class="num">≈ 250 m² ring<br>+ approaches</td></tr>
+      <tr><td>Elephant's feet</td><td>0.45 × 0.45 m white blocks, 0.45 m gaps</td><td>Both edges of every bike crossing over a traffic lane</td><td class="num">≈ 210 m run</td></tr>
+      <tr><td>Zebra crossings</td><td>0.5 m bars, 0.5 m gaps, 4.0 m long</td><td>4 arms + NB jeepney stop</td><td class="num">5</td></tr>
+      <tr><td>Shark teeth (give way)</td><td>Triangles 0.45 × 0.65 m</td><td>Bike lane before each zebra</td><td class="num">6 rows</td></tr>
+      <tr><td>Bike pictogram + arrow</td><td>White thermoplastic, 1.5 m pictogram</td><td>Every 25–50 m and after each junction or driveway</td><td class="num">≈ 20</td></tr>
+      <tr><td>Stop lines</td><td>0.40 m vehicles, 0.30 m bikes</td><td>All approaches</td><td class="num">4 + 4</td></tr>
+      <tr><td>Corner islands</td><td>Cast-in-place concrete, 150 mm barrier kerb, 75 mm mountable apron</td><td>All 4 corners</td><td class="num">4</td></tr>
+      <tr><td>Raised separator</td><td>Precast kerb units, 150 mm, drainage gap every 10 m</td><td>SB main road + wedges</td><td class="num">both approaches</td></tr>
+      <tr><td>Rubber kerb + flexible posts</td><td>Bolt-down, posts at 3 m</td><td>Cross-street separators</td><td class="num">4 runs</td></tr>
+      <tr><td>Bicycle signal heads</td><td>3-aspect, bicycle-symbol lenses</td><td>2 per corner island</td><td class="num">8</td></tr>
+      <tr><td>Signs</td><td>“Bike lane – Para sa bisikleta lamang”, “No right turn on red”, “Turning vehicles yield to bicycles and pedestrians”, “No motorcycles in bike lane”</td><td>Approaches and islands</td><td class="num">≈ 16</td></tr>
+      <tr><td>Tactile paving</td><td>Warning tiles at kerb ramps and island edges</td><td>Every crossing landing</td><td class="num">all</td></tr>
+      <tr><td>Lighting</td><td>Extra pedestrian-scale luminaires</td><td>Each ring corner and the jeepney platform</td><td class="num">5</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="muted">Quantities are measured off this concept layout and will change with the survey. Use them for a first budget conversation only.</p>
+</section>
+
+<!-- 09 -->
+<section id="local">
+  <div class="sec-head">
+    <div class="sheet-tag">Sheet 09 · Local operating issues</div>
+    <h2>Motorcycles, jeepneys, drainage</h2>
+  </div>
+  <div class="cols">
+    <div>
+      <h3>Motorcycles and e-vehicles</h3>
+      <ul class="clean">
+        <li>Use raised kerbs, not paint, on the main road. A 150 mm kerb stops casual lane-hopping.</li>
+        <li>Place “No motorcycles” signage at every lane entry. Pair it with LGU traffic enforcement, and camera enforcement where available.</li>
+        <li>Decide early which e-bikes and e-scooters may use the lane, and sign it.</li>
+        <li>Bollards cannot keep motorcycles out without also blocking cargo bikes and trikes. Do not rely on them.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Jeepneys and PUVs</h3>
+      <ul class="clean">
+        <li>Move loading to the far side of the junction. The SB stop goes on the floating platform (item 8); the NB stop goes on the park kerb (item 9).</li>
+        <li>Mark “Loading / unloading only” zones. Jeepneys waiting for passengers in the ring area block the protection.</li>
+        <li>Run swept-path checks for a jeepney, a city bus and an 11 m truck around each island. Enlarge the apron rather than the kerb radius.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Drainage, lighting, access</h3>
+      <ul class="clean">
+        <li>Existing inlets along the west kerb end up inside the new bike lane. Swap them for bike-safe grates with bars across the direction of travel.</li>
+        <li>Leave drainage gaps in the separators so wet-season runoff still reaches the gutter. Keep 2% crossfall.</li>
+        <li>Make every crossing flush with tactile warning tiles. The corner islands double as wheelchair refuges.</li>
+        <li>Keep the park trees. Signal poles move onto the islands.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 10 -->
+<section id="delivery">
+  <div class="sec-head">
+    <div class="sheet-tag">Sheet 10 · Delivery</div>
+    <h2>From concept to built</h2>
+  </div>
+  <ol class="stages">
+    <li><div><b>Survey and counts</b><p>Topographic survey with utility mapping. Turning-movement counts for cars, jeepneys, motorcycles, bicycles and pedestrians in the AM, midday and PM peaks. Swept-path runs for the design vehicles.</p></div></li>
+    <li><div><b>Approvals</b><p>If the main road is a national road, coordinate with DPWH and the LGU traffic office. Check the dimensions against the current DPWH bicycle-facility design guidelines and the DPWH road signs and pavement markings manual.</p></div></li>
+    <li><div><b>Quick-build pilot</b><p>Paint, rubber kerbs, precast islands, planters and signal re-timing. Run it for 3–6 months, film conflicts before and after, and adjust the island sizes.</p></div></li>
+    <li><div><b>Permanent build</b><p>Cast-in-place kerbs and islands, drainage changes, bike signal heads, lighting, green surfacing and the jeepney platform.</p></div></li>
+    <li><div><b>Connect the corridor</b><p>A protected junction only pays off when lanes on each street carry riders to it. Extend the SB lane, the park track and the cross-street lanes block by block.</p></div></li>
+  </ol>
+</section>
+
+<!-- 11 -->
+<section id="assumptions">
+  <div class="sec-head">
+    <div class="sheet-tag">Sheet 11 · Assumptions to verify</div>
+    <h2>Assumptions to verify</h2>
+  </div>
+  <div class="note">
+    <ul class="clean">
+      <li>All widths are estimated from one oblique drone photo and could be off by ±1–2 m. Main road: ≈13.75 m per carriageway and 2.5 m median. Cross street: ≈12 m. East median park: ≈12 m. Service road: ≈7 m.</li>
+      <li>The NW corner bend-out needs about 7 × 7 m of clear corner. The SW plaza has it. The NW corner may need 2–3 m of frontage or forecourt, so coordinate with the property owner. If that space isn't available, use a compact island with the crossing within 1 m of the lane, and give SB right turns their own arrow phase.</li>
+      <li>The direction of travel on the east service road wasn't clear from the photo. The plan assumes two-way traffic, controlled from the main signal.</li>
+      <li>The drawing simplifies the cross street's east arm and its merge with the service road. That area needs its own detailed layout.</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  Concept by Claude from two user-supplied photos. It is not a construction drawing and needs review and sealing by a licensed civil engineer. References: NACTO <em>Don't Give Up at the Intersection</em> (2019); CROW <em>Design Manual for Bicycle Traffic</em> (2016); DPWH design guidelines for bicycle facilities (use the latest issuance).
+</footer>
+
+</div>
+
+<script>
+(function(){
+  var fig=document.getElementById('ovfig'), p=document.getElementById('btn-prop'), e=document.getElementById('btn-exist');
+  function set(showProp){fig.classList.toggle('existing',!showProp);p.setAttribute('aria-pressed',showProp);e.setAttribute('aria-pressed',!showProp);}
+  p.addEventListener('click',function(){set(true)});
+  e.addEventListener('click',function(){set(false)});
+})();
+</script>
